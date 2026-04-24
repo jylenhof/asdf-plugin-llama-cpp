@@ -2,22 +2,29 @@
 
 set -euo pipefail
 
-current_script_path=${BASH_SOURCE[0]}
-plugin_dir=$(dirname "$(dirname "$current_script_path")")
+version="$ASDF_INSTALL_VERSION"
+# Add the 'b' back for the GitHub release tag
+tag="b${version}"
 
-# shellcheck source=./lib/utils.bash
-source "${plugin_dir}/lib/utils.bash"
+platform=$(uname -s | tr '[:upper:]' '[:lower:]')
+arch=$(uname -m)
 
-mkdir -p "$ASDF_DOWNLOAD_PATH"
+# Logic to pick the right asset based on platform
+# Defaults to standard CPU/AVX builds.
+if [[ "$platform" == "darwin" ]]; then
+    # llama.cpp uses arm64 for Apple Silicon
+    target="macos-arm64.zip"
+elif [[ "$platform" == "linux" ]]; then
+    # llama.cpp typically labels linux builds as ubuntu-x64
+    target="ubuntu-x64.zip"
+else
+    echo "Unsupported platform: $platform"
+    exit 1
+fi
 
-# TODO: Adapt this to proper extension and adapt extracting strategy.
-release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$ASDF_INSTALL_VERSION.tar.gz"
+url="https://github.com/ggml-org/llama.cpp/releases/download/${tag}/llama-${tag}-bin-${target}"
 
-# Download tar.gz file to the download directory
-download_release "$ASDF_INSTALL_VERSION" "$release_file"
-
-#  Extract contents of tar.gz file into the download directory
-tar -xzf "$release_file" -C "$ASDF_DOWNLOAD_PATH" --strip-components=1 || fail "Could not extract $release_file"
-
-# Remove the tar.gz file since we don't need to keep it
-rm "$release_file"
+echo "Downloading llama.cpp from $url..."
+curl -L -o "$ASDF_DOWNLOAD_PATH/archive.zip" "$url"
+unzip -q "$ASDF_DOWNLOAD_PATH/archive.zip" -d "$ASDF_DOWNLOAD_PATH"
+rm "$ASDF_DOWNLOAD_PATH/archive.zip"
