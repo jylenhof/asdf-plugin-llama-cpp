@@ -36,5 +36,5 @@ url="https://github.com/ggml-org/llama.cpp/releases/download/${tag}/llama-${tag}
 
 echo "Downloading llama.cpp from $url..."
 curl -L -o "$ASDF_DOWNLOAD_PATH/archive.tar.gz" "$url"
-tar xvzf "$ASDF_DOWNLOAD_PATH/archive.tar.gz" -C "$ASDF_DOWNLOAD_PATH"
+tar xvzf "$ASDF_DOWNLOAD_PATH/archive.tar.gz" -C "$ASDF_DOWNLOAD_PATH" --strip-components=1
 rm "$ASDF_DOWNLOAD_PATH/archive.tar.gz"
