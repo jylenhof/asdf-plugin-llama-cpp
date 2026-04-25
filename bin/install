@@ -5,7 +5,6 @@ set -euo pipefail
 install_path="$ASDF_INSTALL_PATH"
 download_path="$ASDF_DOWNLOAD_PATH"
 
-echo "debug 1"
 # Create standard asdf-like directory structure
 mkdir -p "$install_path/bin"
 mkdir -p "$install_path/lib"
@@ -13,12 +12,10 @@ mkdir -p "$install_path/libexec"
 
 # 1. Move all extracted files to libexec
 cp -r "$download_path"/* "$install_path/libexec/"
-echo "debug 2"
 
 # 2. Extract shared libraries to /lib (cleaning up the binary folder)
-find "$install_path/libexec" -maxdepth 1 -type f \( -name "*.so*" -o -name "*.dylib" -o -name "*.dll" \) \
+find "$install_path/libexec" -maxdepth 1 \( -type f -o -type l \) \( -name "*.so*" -o -name "*.dylib" -o -name "*.dll" \) \
 	-exec mv {} "$install_path/lib/" \;
-echo "debug 3"
 
 # 3. Create wrappers for each executable (e.g., llama-cli, llama-server)
 # This prevents LD_LIBRARY_PATH from leaking into your global environment.
@@ -35,7 +32,6 @@ export LD_LIBRARY_PATH="$install_path/lib:\${LD_LIBRARY_PATH:-}"
 export DYLD_LIBRARY_PATH="$install_path/lib:\${DYLD_LIBRARY_PATH:-}"
 exec "$binary" "\$@"
 EOF
-	echo "debug 4"
 
 	chmod +x "$wrapper"
 done
