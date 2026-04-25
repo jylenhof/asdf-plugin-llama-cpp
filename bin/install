@@ -19,7 +19,7 @@ find "$install_path/libexec" -maxdepth 1 -type f \( -name "*.so*" -o -name "*.dy
 
 # 3. Create wrappers for each executable (e.g., llama-cli, llama-server)
 # This prevents LD_LIBRARY_PATH from leaking into your global environment.
-find "$install_path/libexec" -maxdepth 1 -type f -executable \
+find "$install_path/libexec" -maxdepth 1 -type f -perm -u+x \
     ! -name "*.so*" ! -name "*.dylib" ! -name "*.dll" | while read -r binary; do
 
     bin_name=$(basename "$binary")
