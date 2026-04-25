@@ -9,14 +9,24 @@ tag="b${version}"
 platform=$(uname -s | tr '[:upper:]' '[:lower:]')
 arch=$(uname -m)
 
+if [[ "${arch}" == "arm64" ]]; then
+  target_arch="arm64"
+elif [[ "${arch}" == "x86_64" ]]; then
+  target_arch="x64"
+else
+  echo "Unsupported platform: ${arch}" >&2
+  echo "You may need to modify this script" >&2
+  exit 1
+fi
+
 # Logic to pick the right asset based on platform
 # Defaults to standard CPU/AVX builds.
 if [[ "$platform" == "darwin" ]]; then
     # llama.cpp uses arm64 for Apple Silicon
-    target="macos-arm64.zip"
+    target="macos-${target_arch}.tar.gz"
 elif [[ "$platform" == "linux" ]]; then
     # llama.cpp typically labels linux builds as ubuntu-x64
-    target="ubuntu-x64.zip"
+    target="ubuntu-${target_arch}.tar.gz"
 else
     echo "Unsupported platform: $platform"
     exit 1
@@ -25,6 +35,6 @@ fi
 url="https://github.com/ggml-org/llama.cpp/releases/download/${tag}/llama-${tag}-bin-${target}"
 
 echo "Downloading llama.cpp from $url..."
-curl -L -o "$ASDF_DOWNLOAD_PATH/archive.zip" "$url"
-unzip -q "$ASDF_DOWNLOAD_PATH/archive.zip" -d "$ASDF_DOWNLOAD_PATH"
-rm "$ASDF_DOWNLOAD_PATH/archive.zip"
+curl -L -o "$ASDF_DOWNLOAD_PATH/archive.tar.gz" "$url"
+tar xvzf "$ASDF_DOWNLOAD_PATH/archive.tar.gz" -C "$ASDF_DOWNLOAD_PATH"
+rm "$ASDF_DOWNLOAD_PATH/archive.tar.gz"
