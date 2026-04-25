@@ -4,7 +4,7 @@ set -euo pipefail
 
 version="$ASDF_INSTALL_VERSION"
 # Add the 'b' back for the GitHub release tag
-tag="b${version}"
+tag="${version}"
 
 platform=$(uname -s | tr '[:upper:]' '[:lower:]')
 arch=$(uname -m)
